@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import axios from '../services/api';
+import { Button, TextField } from '@mui/material';
+import { submitStory } from '../services/api';
 
 const StoryForm = ({ onStorySubmitted }) => {
   const [story, setStory] = useState('');
@@ -9,7 +10,7 @@ const StoryForm = ({ onStorySubmitted }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('/stories', { story });
+      const response = await submitStory(story);
       onStorySubmitted(response.data);
       setStory('');
     } catch (err) {
@@ -19,14 +20,20 @@ const StoryForm = ({ onStorySubmitted }) => {
 
   return (
     <form onSubmit={handleSubmit}>
-      <textarea
+      <TextField
+        multiline
+        fullWidth
+        rows={4}
         value={story}
         onChange={(e) => setStory(e.target.value)}
-        placeholder="Share your story..."
+        placeholder="Share your story anonymously..."
+        error={!!error}
+        helperText={error}
         required
       />
-      <button type="submit">Submit</button>
-      {error && <p>{error}</p>}
+      <Button type="submit" variant="contained" sx={{ mt: 2 }}>
+        Submit
+      </Button>
     </form>
   );
 };

@@ -1,42 +1,49 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from ai.matching import process_story, find_matches
 import json
-from ai.matching import find_matches
+import os
 
 app = Flask(__name__)
 CORS(app)
 
-STORIES_FILE = 'data/stories.json'
+DATA_FILE = os.path.join(os.path.dirname(__file__), 'data/stories.json')
 
-@app.route('/stories', methods=['POST'])
-def submit_story():
-    story = request.json.get('story')
-    if not story:
+@app.route('/submit_story', methods=['POST'])
+def handle_submit():
+    story_data = request.json
+    if 'story' not in story_data or not story_data['story']:
         return jsonify({'error': 'Story is required'}), 400
 
     try:
-        with open(STORIES_FILE, 'r+') as file:
-            stories = json.load(file)
-            stories.append({'id': len(stories) + 1, 'story': story})
-            file.seek(0)
-            json.dump(stories, file)
-        return jsonify({'message': 'Story submitted successfully'}), 201
+        processed = process_story(story_data['story'])
+        with open(DATA_FILE, 'r+') as f:
+            stories = json.load(f)
+            user_id = f"user{len(stories) + 1}"
+            stories.append({
+                "id": user_id,
+                **processed,
+                "story": story_data['story']
+            })
+            f.seek(0)
+            json.dump(stories, f)
+        return jsonify({"id": user_id}), 201
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@app.route('/match', methods=['POST'])
-def match_stories():
-    story = request.json.get('story')
-    if not story:
-        return jsonify({'error': 'Story is required'}), 400
+@app.route('/get_matches', methods=['GET'])
+def handle_matches():
+    user_id = request.args.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'User ID is required'}), 400
 
     try:
-        with open(STORIES_FILE, 'r') as file:
-            stories = json.load(file)
-        matches = find_matches(story, stories)
+        with open(DATA_FILE, 'r') as f:
+            stories = json.load(f)
+        matches = find_matches(user_id, stories)
         return jsonify(matches), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=os.getenv('FLASK_DEBUG', True))
