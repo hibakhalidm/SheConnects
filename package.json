@@ -1,10 +1,16 @@
 {
-  "name": "she-connects",
+  "name": "she-connects-frontend",
   "version": "1.0.0",
   "scripts": {
-    "start:frontend": "cd frontend && npm start",
-    "start:backend": "cd backend && flask run",
-    "start": "concurrently \"npm run start:frontend\" \"npm run start:backend\""
+    "start": "react-scripts start",
+    "start:dev": "concurrently \"npm start\" \"cd ../backend && flask run\""
+  },
+  "dependencies": {
+    "@mui/material": "^5.14.0",
+    "axios": "^1.6.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-scripts": "^5.0.1"
   },
   "devDependencies": {
     "concurrently": "^7.0.0"

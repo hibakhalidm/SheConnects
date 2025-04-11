@@ -16,4 +16,4 @@ def analyze_text(text: str) -> Dict:
     return {
         "keywords": list(set(keywords)),  # Deduplicate
         "sentiment": round(sentiment, 2)
-    }
+    } 
