@@ -43,7 +43,7 @@ she-connects/
 
 1. **Clone the Repository**:
    ```bash
-   git clone https://github.com/hibakhalidm/she-connects.git
+   git clone https://github.com/hibakhalidm/SheConnects.git
    cd she-connects
    ```
 
